@@ -1,7 +1,7 @@
 from keras import backend as K
 from keras.models import Model
 from keras.layers import (BatchNormalization, Conv1D, Dense, Input, 
-    TimeDistributed, Activation, Bidirectional, SimpleRNN, GRU, LSTM)
+    TimeDistributed, Activation, Bidirectional, SimpleRNN, GRU, LSTM, Dropout)
 
 def simple_rnn_model(input_dim, output_dim=29):
     """ Build a recurrent network for speech 
@@ -153,6 +153,7 @@ def final_model(input_dim, filters, kernel_size, conv_stride,
                      name='conv1d')(input_data)
     
     bn_cnn1 = BatchNormalization(name='bn_conv_1d')(conv_1d)
+    drop = Dropout(0.2)(bn_cnn1)
     
     # Convolutional layer #2
     #conv_2d = Conv1D(filters,
@@ -170,7 +171,7 @@ def final_model(input_dim, filters, kernel_size, conv_stride,
                                   implementation=2,
                                   dropout=0.1,
                                   recurrent_dropout=0.5,
-                                  name='rnn'), merge_mode='concat')(bn_cnn1)
+                                  name='rnn'), merge_mode='concat')(drop)
     
     time_dense = TimeDistributed(Dense(output_dim))(bidir_rnn)
     
